@@ -139,6 +139,23 @@
         .shortcut-hint.show {
             opacity: 1;
         }
+        /* 复制提示 */
+        .copy-hint {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .copy-hint.show {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -201,6 +218,12 @@
                     <input type="checkbox" id="autoplayToggle">
                     <span class="slider"></span>
                 </label>
+                <!-- 新增复制按钮 -->
+                <button onclick="copyVideoUrl()" title="复制视频链接" class="px-3 py-2 bg-[#222] hover:bg-[#333] border border-[#333] rounded-lg transition-colors flex items-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                    </svg>
+                </button>
                 <button onclick="toggleEpisodeOrder()" class="ml-4 px-4 py-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" id="orderIcon" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z" clip-rule="evenodd" />
@@ -248,6 +271,42 @@
         let adFilteringEnabled = true; // 默认开启广告过滤
         let progressSaveInterval = null; // 定期保存进度的计时器
 
+        // 复制当前视频 URL 到剪切板
+        function copyVideoUrl() {
+            // 获取当前视频 URL
+            let videoUrl = '';
+            if (dp && dp.video && dp.video.src) {
+                videoUrl = dp.video.src;
+            } else if (currentEpisodes[currentEpisodeIndex]) {
+                videoUrl = currentEpisodes[currentEpisodeIndex];
+            }
+
+            if (!videoUrl) {
+                showCopyHint('没有可复制的视频链接', false);
+                return;
+            }
+
+            // 使用 Clipboard API 复制到剪切板
+            navigator.clipboard.writeText(videoUrl).then(() => {
+                showCopyHint('视频链接已复制到剪切板', true);
+            }).catch(err => {
+                console.error('复制失败:', err);
+                showCopyHint('复制失败，请重试', false);
+            });
+        }
+
+        // 显示复制提示
+        function showCopyHint(message, isSuccess) {
+            const hintElement = document.getElementById('copyHint');
+            hintElement.textContent = message;
+            hintElement.style.backgroundColor = isSuccess ? 'rgba(0, 200, 0, 0.8)' : 'rgba(200, 0, 0, 0.8)';
+            hintElement.classList.add('show');
+
+            // 2 秒后隐藏提示
+            setTimeout(() => {
+                hintElement.classList.remove('show');
+            }, 2000);
+        }
         // 页面加载
         document.addEventListener('DOMContentLoaded', function() {
             // 解析URL参数
@@ -1172,5 +1231,7 @@
             return `${encodeURIComponent(currentVideoTitle)}_${currentEpisodeIndex}`;
         }
     </script>
+    <!-- 复制提示 -->
+    <div class="copy-hint" id="copyHint"></div>
 </body>
 </html>

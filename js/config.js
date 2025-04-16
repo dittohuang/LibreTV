@@ -22,8 +22,8 @@ const API_SITES = {
         detail: 'https://heimuer.tv'
     },
     hnzy: {
-        api: 'https://www.hongniuzy2.com',
-        name: '红牛资源',
+        api: 'https://api.ukuapi88.com',
+        name: 'U酷资源',
     },
     tyyszy: {
         api: 'https://tyyszy.com',

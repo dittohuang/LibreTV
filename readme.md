@@ -69,9 +69,10 @@ LibreTV播放器支持以下键盘快捷键：
 2. 登录Cloudflare Dashboard，进入Pages服务
 3. 点击"创建项目"，连接GitHub仓库
 4. 使用以下设置：
-   - 构建命令：留空（无需构建）
+   - 构建命令：sed -i "s|{{PROXY_URL}}|$PROXY_URL|g" js/config.js
    - 输出目录：留空（默认为根目录）
    - 部署命令：留空
+   - 添加一个纯文本变量PROXY_URL，值为你的代理URL，参考(https://github.com/netnr/workers)
 5. 点击"保存并部署"
 
 ### Vercel/Netlify部署

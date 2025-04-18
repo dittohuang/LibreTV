@@ -320,7 +320,6 @@
         }
         // 推送视频 URL 到电视
         function pushVideoUrl() {
-            // 获取当前视频 URL（与 copyVideoUrl 一致）
             let videoUrl = '';
             if (dp && dp.video && dp.video.src) {
                 videoUrl = dp.video.src;
@@ -333,23 +332,28 @@
                 return;
             }
 
-            // 发送 POST 请求
-            const serverUrl = 'http://192.168.0.88:9978/action';
             showHint('正在推送...', 'loading');
 
-            $.post(serverUrl, {
-                do: 'push',
-                url: videoUrl
-            }, function (data) {
-                console.log('Push response:', data);
-                if (data && data.status === 'success') {
-                    showHint('推送成功！', 'success');
-                } else {
-                    showHint(data?.message || '推送失败！', 'error');
+            // 打开新页面，传递视频 URL
+            const encodedVideoUrl = encodeURIComponent(videoUrl);
+            const pushWindow = window.open(`push.html?url=${encodedVideoUrl}`, '_blank');
+
+            if (!pushWindow) {
+                showHint('无法打开推送页面，请允许弹出窗口', 'error');
+                return;
+            }
+
+            // 监听推送结果
+            window.addEventListener('message', function handleMessage(event) {
+                if (event.data.type === 'pushResult') {
+                    const { status, message } = event.data;
+                    if (status === 'success') {
+                        showHint('推送成功！', 'success');
+                    } else {
+                        showHint(message || '推送失败！', 'error');
+                    }
+                    window.removeEventListener('message', handleMessage);
                 }
-            }).fail(function (jqXHR, textStatus, errorThrown) {
-                console.error('Push failed:', textStatus, errorThrown);
-                showHint('推送失败：网络错误！', 'error');
             });
         }
         // 页面加载

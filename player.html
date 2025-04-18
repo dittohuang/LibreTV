@@ -335,14 +335,14 @@
             showHint('正在打开推送页面...', 'loading');
 
             const encodedVideoUrl = encodeURIComponent(videoUrl);
-            const pushWindow = window.open(`http://192.168.0.88:9978/?url=${encodedVideoUrl}`, '_blank');
+            const pushWindow = window.open(`http://192.168.0.88:9978/?tab=2&url=${encodedVideoUrl}`, '_blank');
 
             if (!pushWindow) {
                 showHint('无法打开推送页面，请允许弹出窗口', 'error');
                 return;
             }
 
-            // 注入脚本切换标签页和填充 URL
+            // 注入脚本填充 URL
             pushWindow.onload = function () {
                 try {
                     const injectScript = pushWindow.document.createElement('script');
@@ -350,7 +350,7 @@
                         (function () {
                             console.log('Starting script injection at:', new Date().toISOString());
 
-                            // 等待页面加载完成
+                            // 等待 push_url 输入框
                             function waitForElement(selector, maxAttempts, interval, callback) {
                                 let attempts = 0;
                                 const intervalId = setInterval(() => {
@@ -363,44 +363,10 @@
                                     } else if (attempts >= maxAttempts) {
                                         clearInterval(intervalId);
                                         console.error('Element not found after', maxAttempts, 'attempts:', selector);
-                                        alert('无法自动切换到推送页面，请手动切换并粘贴 URL: ' + decodeURIComponent(window.location.search.split('url=')[1] || ''));
+                                        alert('无法自动填充 URL，请手动粘贴: ' + decodeURIComponent(window.location.search.split('url=')[1] || ''));
                                     }
                                 }, interval);
                             }
-
-                            // 切换到“推送”标签页
-                            waitForElement('#tab2', 10, 500, function (tab2) {
-                                console.log('Found tab2, attempting to switch');
-                                try {
-                                    // 模拟点击 tab2，触发服务器的切换逻辑
-                                    const clickEvent = new Event('click', { bubbles: true });
-                                    tab2.dispatchEvent(clickEvent);
-                                    console.log('Dispatched click event on tab2');
-
-                                    // 验证切换
-                                    setTimeout(() => {
-                                        const panel2 = document.getElementById('panel2');
-                                        if (panel2 && panel2.style.display !== 'none') {
-                                            console.log('Successfully switched to panel2');
-                                        } else {
-                                            console.warn('Panel2 not visible, forcing display');
-                                            const panels = document.querySelectorAll('.weui-tab__panel');
-                                            const tabs = document.querySelectorAll('.weui-tabbar__item');
-                                            panels.forEach(panel => panel.style.display = 'none');
-                                            panel2.style.display = 'block';
-                                            tabs.forEach(tab => {
-                                                tab.classList.remove('weui-bar__item_on');
-                                                tab.setAttribute('aria-selected', 'false');
-                                            });
-                                            tab2.classList.add('weui-bar__item_on');
-                                            tab2.setAttribute('aria-selected', 'true');
-                                        }
-                                    }, 500);
-                                } catch (e) {
-                                    console.error('Error switching tab:', e);
-                                    alert('无法自动切换到推送页面，请手动切换并粘贴 URL: ' + decodeURIComponent(window.location.search.split('url=')[1] || ''));
-                                }
-                            });
 
                             // 填充推送 URL
                             waitForElement('#push_url', 10, 500, function (pushUrlInput) {
@@ -412,6 +378,7 @@
                                         console.log('Filled push_url with:', videoUrl);
                                     } else {
                                         console.warn('No video URL provided in query');
+                                        alert('无视频 URL，请手动输入');
                                     }
                                 } catch (e) {
                                     console.error('Error filling push_url:', e);
@@ -432,8 +399,8 @@
                     });
                 } catch (e) {
                     console.error('Failed to inject script:', e);
-                    pushWindow.alert('无法加载推送界面，请手动切换到“推送”标签页并粘贴 URL: ' + videoUrl);
-                    showHint('请在新页面手动切换到“推送”并粘贴 URL', 'error');
+                    pushWindow.alert('无法自动填充 URL，请手动粘贴: ' + videoUrl);
+                    showHint('请在新页面手动粘贴 URL', 'error');
                 }
             };
 

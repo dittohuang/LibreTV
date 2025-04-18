@@ -64,17 +64,17 @@
                 do: 'push'
             },
             headers: {
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                'Referer': 'http://192.168.0.88:9978/' // 匹配 curl
             },
             timeout: 5000,
             success: function (data, textStatus, jqXHR) {
-                console.log('Response:', data, 'Status:', jqXHR.status);
-                // 服务器可能返回 text/plain "OK"，视为成功
-                if (jqXHR.status === 200) {
+                console.log('Response:', data, 'Status:', jqXHR.status, 'ResponseText:', jqXHR.responseText);
+                if (jqXHR.status === 200 && (data === 'OK' || jqXHR.responseText === 'OK')) {
                     updateMessage('推送成功！', 'success');
                     notifyParent({ type: 'pushResult', status: 'success' });
                 } else {
-                    console.error('Unexpected response:', data);
+                    console.error('Unexpected response:', data, jqXHR.responseText);
                     updateMessage('推送失败：服务器响应无效', 'error');
                     notifyParent({ type: 'pushResult', status: 'error', message: '服务器响应无效' });
                 }

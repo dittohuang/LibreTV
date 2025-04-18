@@ -368,9 +368,9 @@
                             }
 
                             // 填充推送 URL
-                            waitForElement('#push_url', 10, 500, function (pushUrlInput) {
+                            waitForElement('#push_url', 20, 1000, function (pushUrlInput) {
                                 try {
-                                    const videoUrl = '${videoUrl.replace(/'/g, "\\'")}';
+                                    const videoUrl = '${videoUrl.replace(/'/g, "\\'").replace(/"/g, '\\"')}';
                                     if (videoUrl) {
                                         pushUrlInput.value = videoUrl;
                                         console.log('Filled push_url with:', videoUrl);

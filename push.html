@@ -1,131 +1,94 @@
-<!DOCTYPE html>
-<html lang="zh">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>推送视频</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            background-color: #1a1a1a;
-            color: white;
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
-        }
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            margin-bottom: 10px;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .message {
-            font-size: 16px;
-        }
-    </style>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
-    <div class="spinner"></div>
-    <div class="message">正在推送...</div>
-    <script>
-        (function () {
-            const urlParams = new URLSearchParams(window.location.search);
-            const videoUrl = decodeURIComponent(urlParams.get('url') || '');
+<script>
+function pushVideoUrl() {
+    let videoUrl = '';
+    if (dp && dp.video && dp.video.src) {
+        videoUrl = dp.video.src;
+    } else if (currentEpisodes[currentEpisodeIndex]) {
+        videoUrl = currentEpisodes[currentEpisodeIndex];
+    }
 
-            if (!videoUrl) {
-                console.error('No video URL provided');
-                updateMessage('无效的视频链接', 'error');
-                notifyParent({ type: 'pushResult', status: 'error', message: '无效的视频链接' });
-                setTimeout(closeWindow, 2000);
-                return; // 正确：在函数内
-            }
+    if (!videoUrl) {
+        showHint('没有可推送的视频链接', 'error');
+        return;
+    }
 
-            const target = 'http://192.168.0.88:9978';
+    showHint('正在打开推送页面...', 'loading');
 
-            console.log('Sending POST to:', target + '/action');
-            console.log('Payload:', `url=${encodeURIComponent(videoUrl)}&do=push`);
+    const encodedVideoUrl = encodeURIComponent(videoUrl);
+    const pushWindow = window.open(`http://192.168.0.88:9978/?url=${encodedVideoUrl}`, '_blank');
 
-            $.ajax({
-                url: target + '/action',
-                method: 'POST',
-                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-                data: {
-                    url: videoUrl,
-                    do: 'push'
-                },
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Referer': 'http://192.168.0.88:9978/'
-                },
-                timeout: 5000,
-                success: function (data, textStatus, jqXHR) {
-                    console.log('Response:', data, 'Status:', jqXHR.status, 'ResponseText:', jqXHR.responseText);
-                    if (jqXHR.status === 200 && (data === 'OK' || jqXHR.responseText === 'OK')) {
-                        updateMessage('推送成功！', 'success');
-                        notifyParent({ type: 'pushResult', status: 'success' });
-                    } else {
-                        console.error('Unexpected response:', data, jqXHR.responseText);
-                        updateMessage('推送失败：服务器响应无效', 'error');
-                        notifyParent({ type: 'pushResult', status: 'error', message: '服务器响应无效' });
+    if (!pushWindow) {
+        showHint('无法打开推送页面，请允许弹出窗口', 'error');
+        return;
+    }
+
+    // 注入脚本切换标签页和填充 URL
+    pushWindow.onload = function () {
+        try {
+            const injectScript = pushWindow.document.createElement('script');
+            injectScript.textContent = `
+                (function () {
+                    try {
+                        // 切换到“推送”标签页
+                        const tab2 = document.getElementById('tab2');
+                        const panel2 = document.getElementById('panel2');
+                        const panels = document.querySelectorAll('.weui-tab__panel');
+                        const tabs = document.querySelectorAll('.weui-tabbar__item');
+
+                        if (tab2 && panel2) {
+                            // 隐藏所有面板
+                            panels.forEach(panel => {
+                                panel.style.display = 'none';
+                            });
+                            // 显示推送面板
+                            panel2.style.display = 'block';
+
+                            // 更新标签状态
+                            tabs.forEach(tab => {
+                                tab.classList.remove('weui-bar__item_on');
+                                tab.setAttribute('aria-selected', 'false');
+                            });
+                            tab2.classList.add('weui-bar__item_on');
+                            tab2.setAttribute('aria-selected', 'true');
+                        } else {
+                            console.error('Tab or panel not found');
+                        }
+
+                        // 填充推送 URL
+                        const pushUrlInput = document.getElementById('push_url');
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const videoUrl = decodeURIComponent(urlParams.get('url') || '');
+                        if (pushUrlInput && videoUrl) {
+                            pushUrlInput.value = videoUrl;
+                            console.log('Filled push_url with:', videoUrl);
+                        } else {
+                            console.error('push_url input not found or no URL provided');
+                        }
+                    } catch (e) {
+                        console.error('Script injection error:', e);
+                        alert('无法自动切换到推送页面，请手动切换并粘贴 URL: ' + decodeURIComponent(window.location.search.split('url=')[1] || ''));
                     }
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    console.error('Request failed:', {
-                        status: jqXHR.status,
-                        statusText: jqXHR.statusText,
-                        textStatus: textStatus,
-                        errorThrown: errorThrown,
-                        responseText: jqXHR.responseText
-                    });
-                    let message = '推送失败：未知错误';
-                    if (jqXHR.status === 0) {
-                        message = '推送失败：无法连接到服务器（检查局域网或服务器状态）';
-                    } else if (jqXHR.status) {
-                        message = `推送失败：HTTP ${jqXHR.status} ${jqXHR.statusText}`;
-                    } else if (textStatus === 'timeout') {
-                        message = '推送失败：请求超时';
-                    }
-                    updateMessage(message, 'error');
-                    notifyParent({ type: 'pushResult', status: 'error', message });
-                },
-                complete: function () {
-                    setTimeout(closeWindow, 2000);
-                }
-            });
+                })();
+            `;
+            pushWindow.document.head.appendChild(injectScript);
+        } catch (e) {
+            console.error('Failed to inject script:', e);
+            pushWindow.alert('无法加载推送界面，请手动切换到“推送”标签页并粘贴 URL: ' + videoUrl);
+            showHint('请在新页面手动切换到“推送”并粘贴 URL', 'error');
+        }
+    };
 
-            function updateMessage(message, type) {
-                console.log('Displaying message:', message, type);
-                const messageElement = document.querySelector('.message');
-                messageElement.textContent = message;
-                messageElement.style.color = type === 'success' ? '#00ff00' : '#ff0000';
-                document.querySelector('.spinner').style.display = 'none';
+    // 监听推送结果（如果服务器支持 postMessage）
+    window.addEventListener('message', function handleMessage(event) {
+        if (event.data.type === 'pushResult') {
+            const { status, message } = event.data;
+            if (status === 'success') {
+                showHint('推送成功！', 'success');
+            } else {
+                showHint(message || '推送失败！', 'error');
             }
-
-            function notifyParent(result) {
-                console.log('Notifying parent:', result);
-                if (window.opener) {
-                    window.opener.postMessage(result, '*');
-                } else {
-                    console.warn('No window.opener available');
-                }
-            }
-
-            function closeWindow() {
-                console.log('Closing window');
-                window.close();
-            }
-        })();
-    </script>
-</body>
-</html>
+            window.removeEventListener('message', handleMessage);
+        }
+    });
+}
+</script>

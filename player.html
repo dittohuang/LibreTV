@@ -334,90 +334,36 @@
 
             showHint('正在打开推送页面...', 'loading');
 
-            const pushWindow = window.open('http://192.168.0.88:9978/?tab=2', '_blank');
-
-            if (!pushWindow) {
-                showHint('无法打开推送页面，请允许弹出窗口', 'error');
-                return;
-            }
-
-            // 注入脚本填充 URL
-            try {
-                pushWindow.addEventListener('load', function () {
-                    pushWindow.alert('Injected script into pushWindow');
-                    try {
-                        // 延迟注入，确保 jQuery 和 script.js 完成
-                        setTimeout(() => {
-                            if (!pushWindow.document.head || !pushWindow.document.body) {
-                                console.error('Document head or body is null');
-                                pushWindow.alert('页面加载异常，请手动粘贴 URL: ' + videoUrl);
-                                showHint('页面加载失败，请在新页面手动粘贴 URL', 'error');
-                                return;
-                            }
-
-                            const injectScript = pushWindow.document.createElement('script');
-                            injectScript.textContent = `
-                                (function () {
-                                    console.log('Starting script injection at:', new Date().toISOString());
-
-                                    // 等待 push_url 输入框
-                                    function waitForElement(selector, maxAttempts, interval, callback) {
-                                        let attempts = 0;
-                                        const intervalId = setInterval(() => {
-                                            const element = document.querySelector(selector);
-                                            attempts++;
-                                            console.log('Attempt', attempts, 'to find', selector, ':', element ? 'Found' : 'Not found');
-                                            if (element) {
-                                                clearInterval(intervalId);
-                                                callback(element);
-                                            } else if (attempts >= maxAttempts) {
-                                                clearInterval(intervalId);
-                                                console.error('Element not found after', maxAttempts, 'attempts:', selector);
-                                                alert('无法自动填充 URL，请手动粘贴视频 URL');
-                                            }
-                                        }, interval);
-                                    }
-
-                                    // 填充推送 URL
-                                    waitForElement('#push_url', 30, 1000, function (pushUrlInput) {
-                                        try {
-                                            const videoUrl = ${JSON.stringify(videoUrl)};
-                                            if (videoUrl) {
-                                                pushUrlInput.value = videoUrl;
-                                                console.log('Filled push_url with:', videoUrl);
-                                            } else {
-                                                console.warn('No video URL provided');
-                                                alert('无视频 URL，请手动输入');
-                                            }
-                                        } catch (e) {
-                                            console.error('Error filling push_url:', e);
-                                            alert('无法自动填充 URL，请手动粘贴视频 URL');
-                                        }
-                                    });
-                                })();
-                            `;
-                            pushWindow.document.head.appendChild(injectScript);
-                            console.log('Injected script into pushWindow');
-                        }, 2000); // 延迟 2 秒等待 jQuery
-                    } catch (e) {
-                        console.error('Failed to inject script:', e);
-                        pushWindow.alert('无法自动填充 URL，请手动粘贴: ' + videoUrl);
-                        showHint('请在新页面手动粘贴 URL', 'error');
-                    }
-                });
-
-                // 复制 URL 到剪贴板作为备用
-                navigator.clipboard.writeText(videoUrl).then(() => {
-                    console.log('Copied URL to clipboard:', videoUrl);
-                    showHint('推送页面已打开，URL 已复制到剪贴板', 'info');
-                }).catch(err => {
-                    console.error('Failed to copy URL:', err);
-                    showHint('URL 复制失败，请手动复制：' + videoUrl, 'error');
-                });
-            } catch (e) {
-                console.error('Failed to set up injection:', e);
-                showHint('脚本初始化失败，请在新页面手动粘贴 URL', 'error');
-            }
+            // 复制 URL 到剪贴板
+            navigator.clipboard.writeText(videoUrl).then(() => {
+                console.log('Copied URL to clipboard:', videoUrl);
+                // 打开推送页面
+                const pushWindow = window.open('http://192.168.0.88:9978/?tab=2', '_blank');
+                if (!pushWindow) {
+                    showHint('无法打开推送页面，请允许弹出窗口', 'error');
+                    return;
+                }
+                // 显示提示
+                showHint(
+                    'URL 已复制！在新页面的“推送”输入框（push_url）中粘贴 URL（Ctrl+V 或右键粘贴），然后点击“確定”推送视频。\n' +
+                    'URL: ' + videoUrl,
+                    'info',
+                    10000 // 显示 10 秒
+                );
+            }).catch(err => {
+                console.error('Failed to copy URL:', err);
+                showHint(
+                    'URL 复制失败，请手动复制以下 URL，并在新页面的“推送”输入框中粘贴，然后点击“確定”：\n' +
+                    videoUrl,
+                    'error',
+                    10000
+                );
+                // 仍尝试打开页面
+                const pushWindow = window.open('http://192.168.0.88:9978/?tab=2', '_blank');
+                if (!pushWindow) {
+                    showHint('无法打开推送页面，请允许弹出窗口', 'error');
+                }
+            });
         }
         // 页面加载
         document.addEventListener('DOMContentLoaded', function() {

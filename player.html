@@ -344,7 +344,7 @@
             // 注入脚本填充 URL
             try {
                 pushWindow.addEventListener('load', function () {
-                    console.log('Injected script into pushWindow');
+                    pushWindow.alert('Injected script into pushWindow');
                     try {
                         // 延迟注入，确保 jQuery 和 script.js 完成
                         setTimeout(() => {

@@ -39,91 +39,93 @@
     <div class="spinner"></div>
     <div class="message">正在推送...</div>
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const videoUrl = decodeURIComponent(urlParams.get('url') || '');
+        (function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const videoUrl = decodeURIComponent(urlParams.get('url') || '');
 
-        if (!videoUrl) {
-            console.error('No video URL provided');
-            updateMessage('无效的视频链接', 'error');
-            notifyParent({ type: 'pushResult', status: 'error', message: '无效的视频链接' });
-            setTimeout(closeWindow, 2000);
-            return;
-        }
-
-        const target = 'http://192.168.0.88:9978';
-
-        console.log('Sending POST to:', target + '/action');
-        console.log('Payload:', `url=${encodeURIComponent(videoUrl)}&do=push`);
-
-        $.ajax({
-            url: target + '/action',
-            method: 'POST',
-            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-            data: {
-                url: videoUrl,
-                do: 'push'
-            },
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Referer': 'http://192.168.0.88:9978/' // 匹配 curl
-            },
-            timeout: 5000,
-            success: function (data, textStatus, jqXHR) {
-                console.log('Response:', data, 'Status:', jqXHR.status, 'ResponseText:', jqXHR.responseText);
-                if (jqXHR.status === 200 && (data === 'OK' || jqXHR.responseText === 'OK')) {
-                    updateMessage('推送成功！', 'success');
-                    notifyParent({ type: 'pushResult', status: 'success' });
-                } else {
-                    console.error('Unexpected response:', data, jqXHR.responseText);
-                    updateMessage('推送失败：服务器响应无效', 'error');
-                    notifyParent({ type: 'pushResult', status: 'error', message: '服务器响应无效' });
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.error('Request failed:', {
-                    status: jqXHR.status,
-                    statusText: jqXHR.statusText,
-                    textStatus: textStatus,
-                    errorThrown: errorThrown,
-                    responseText: jqXHR.responseText
-                });
-                let message = '推送失败：未知错误';
-                if (jqXHR.status === 0) {
-                    message = '推送失败：无法连接到服务器（检查局域网或服务器状态）';
-                } else if (jqXHR.status) {
-                    message = `推送失败：HTTP ${jqXHR.status} ${jqXHR.statusText}`;
-                } else if (textStatus === 'timeout') {
-                    message = '推送失败：请求超时';
-                }
-                updateMessage(message, 'error');
-                notifyParent({ type: 'pushResult', status: 'error', message });
-            },
-            complete: function () {
+            if (!videoUrl) {
+                console.error('No video URL provided');
+                updateMessage('无效的视频链接', 'error');
+                notifyParent({ type: 'pushResult', status: 'error', message: '无效的视频链接' });
                 setTimeout(closeWindow, 2000);
+                return; // 正确：在函数内
             }
-        });
 
-        function updateMessage(message, type) {
-            console.log('Displaying message:', message, type);
-            const messageElement = document.querySelector('.message');
-            messageElement.textContent = message;
-            messageElement.style.color = type === 'success' ? '#00ff00' : '#ff0000';
-            document.querySelector('.spinner').style.display = 'none';
-        }
+            const target = 'http://192.168.0.88:9978';
 
-        function notifyParent(result) {
-            console.log('Notifying parent:', result);
-            if (window.opener) {
-                window.opener.postMessage(result, '*');
-            } else {
-                console.warn('No window.opener available');
+            console.log('Sending POST to:', target + '/action');
+            console.log('Payload:', `url=${encodeURIComponent(videoUrl)}&do=push`);
+
+            $.ajax({
+                url: target + '/action',
+                method: 'POST',
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                data: {
+                    url: videoUrl,
+                    do: 'push'
+                },
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Referer': 'http://192.168.0.88:9978/'
+                },
+                timeout: 5000,
+                success: function (data, textStatus, jqXHR) {
+                    console.log('Response:', data, 'Status:', jqXHR.status, 'ResponseText:', jqXHR.responseText);
+                    if (jqXHR.status === 200 && (data === 'OK' || jqXHR.responseText === 'OK')) {
+                        updateMessage('推送成功！', 'success');
+                        notifyParent({ type: 'pushResult', status: 'success' });
+                    } else {
+                        console.error('Unexpected response:', data, jqXHR.responseText);
+                        updateMessage('推送失败：服务器响应无效', 'error');
+                        notifyParent({ type: 'pushResult', status: 'error', message: '服务器响应无效' });
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error('Request failed:', {
+                        status: jqXHR.status,
+                        statusText: jqXHR.statusText,
+                        textStatus: textStatus,
+                        errorThrown: errorThrown,
+                        responseText: jqXHR.responseText
+                    });
+                    let message = '推送失败：未知错误';
+                    if (jqXHR.status === 0) {
+                        message = '推送失败：无法连接到服务器（检查局域网或服务器状态）';
+                    } else if (jqXHR.status) {
+                        message = `推送失败：HTTP ${jqXHR.status} ${jqXHR.statusText}`;
+                    } else if (textStatus === 'timeout') {
+                        message = '推送失败：请求超时';
+                    }
+                    updateMessage(message, 'error');
+                    notifyParent({ type: 'pushResult', status: 'error', message });
+                },
+                complete: function () {
+                    setTimeout(closeWindow, 2000);
+                }
+            });
+
+            function updateMessage(message, type) {
+                console.log('Displaying message:', message, type);
+                const messageElement = document.querySelector('.message');
+                messageElement.textContent = message;
+                messageElement.style.color = type === 'success' ? '#00ff00' : '#ff0000';
+                document.querySelector('.spinner').style.display = 'none';
             }
-        }
 
-        function closeWindow() {
-            console.log('Closing window');
-            window.close();
-        }
+            function notifyParent(result) {
+                console.log('Notifying parent:', result);
+                if (window.opener) {
+                    window.opener.postMessage(result, '*');
+                } else {
+                    console.warn('No window.opener available');
+                }
+            }
+
+            function closeWindow() {
+                console.log('Closing window');
+                window.close();
+            }
+        })();
     </script>
 </body>
 </html>

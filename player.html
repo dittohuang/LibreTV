@@ -334,8 +334,7 @@
 
             showHint('正在打开推送页面...', 'loading');
 
-            const encodedVideoUrl = encodeURIComponent(videoUrl);
-            const pushWindow = window.open(`http://192.168.0.88:9978/?tab=2&url=${encodedVideoUrl}`, '_blank');
+            const pushWindow = window.open('http://192.168.0.88:9978/?tab=2', '_blank');
 
             if (!pushWindow) {
                 showHint('无法打开推送页面，请允许弹出窗口', 'error');
@@ -363,7 +362,7 @@
                                     } else if (attempts >= maxAttempts) {
                                         clearInterval(intervalId);
                                         console.error('Element not found after', maxAttempts, 'attempts:', selector);
-                                        alert('无法自动填充 URL，请手动粘贴: ' + decodeURIComponent(window.location.search.split('url=')[1] || ''));
+                                        alert('无法自动填充 URL，请手动粘贴视频 URL');
                                     }
                                 }, interval);
                             }
@@ -371,18 +370,17 @@
                             // 填充推送 URL
                             waitForElement('#push_url', 10, 500, function (pushUrlInput) {
                                 try {
-                                    const urlParams = new URLSearchParams(window.location.search);
-                                    const videoUrl = decodeURIComponent(urlParams.get('url') || '');
+                                    const videoUrl = '${videoUrl.replace(/'/g, "\\'")}';
                                     if (videoUrl) {
                                         pushUrlInput.value = videoUrl;
                                         console.log('Filled push_url with:', videoUrl);
                                     } else {
-                                        console.warn('No video URL provided in query');
+                                        console.warn('No video URL provided');
                                         alert('无视频 URL，请手动输入');
                                     }
                                 } catch (e) {
                                     console.error('Error filling push_url:', e);
-                                    alert('无法自动填充 URL，请手动粘贴: ' + decodeURIComponent(window.location.search.split('url=')[1] || ''));
+                                    alert('无法自动填充 URL，请手动粘贴视频 URL');
                                 }
                             });
                         })();
@@ -393,6 +391,7 @@
                     // 复制 URL 到剪贴板作为备用
                     navigator.clipboard.writeText(videoUrl).then(() => {
                         console.log('Copied URL to clipboard:', videoUrl);
+                        showHint('推送页面已打开，URL 已复制到剪贴板', 'info');
                     }).catch(err => {
                         console.error('Failed to copy URL:', err);
                         showHint('URL 复制失败，请手动复制：' + videoUrl, 'error');

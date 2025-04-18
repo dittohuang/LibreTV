@@ -162,6 +162,17 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 推送服务器设置区域 -->
+            <div class="p-3 bg-[#151515] rounded-lg shadow-inner">
+                <label class="block text-sm font-medium text-gray-400 mb-3 border-b border-[#333] pb-1">推送服务器设置</label>
+                <div class="flex flex-col mb-3">
+                    <label class="text-sm font-medium text-gray-400">服务器地址</label>
+                    <p class="text-xs text-gray-500 mt-1">设置推送视频的电视服务器地址</p>
+                    <input type="text" id="pushServerUrl" placeholder="http://192.168.0.88:9978" class="w-full bg-[#222] border border-[#333] text-white px-2 py-1 rounded mt-2">
+                    <button onclick="savePushServerUrl()" class="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">保存</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -315,6 +326,20 @@
 
     <!-- 弹窗显示脚本 -->
     <script>
+        function savePushServerUrl() {
+            const url = document.getElementById('pushServerUrl').value.trim();
+            if (!url) {
+                showToast('请输入服务器地址', 'error');
+                return;
+            }
+            // 验证 URL 格式
+            if (PUSH_SERVER_CONFIG.validateUrl && !url.match(/^http:\/\/[^\/]+(:\d+)?$/)) {
+                showToast('请输入有效的服务器地址（如 http://192.168.0.88:9978）', 'error');
+                return;
+            }
+            localStorage.setItem(PUSH_SERVER_CONFIG.storageKey, url);
+            showToast('推送服务器地址已保存！', 'success');
+        }
         // 在页面加载完成后检查用户是否首次访问
         document.addEventListener('DOMContentLoaded', function() {
             // 检查用户是否已经看过声明

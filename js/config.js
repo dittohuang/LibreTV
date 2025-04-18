@@ -140,5 +140,12 @@ const CUSTOM_API_CONFIG = {
     adultPropName: 'isAdult'  // 用于标记成人内容的属性名
 };
 
+const PUSH_SERVER_CONFIG = {
+    defaultUrl: 'http://192.168.0.88:9978',
+    tab: '2',
+    storageKey: 'pushServerUrl',
+    validateUrl: true
+};
+
 // 新增隐藏内置黄色采集站API的变量，默认为true
 const HIDE_BUILTIN_ADULT_APIS = true;

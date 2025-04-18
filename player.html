@@ -332,13 +332,17 @@
                 return;
             }
 
+            // 获取推送服务器地址
+            const pushServerUrl = localStorage.getItem(PUSH_SERVER_CONFIG.storageKey) || PUSH_SERVER_CONFIG.defaultUrl;
+            const pushUrl = `${pushServerUrl}/?tab=${PUSH_SERVER_CONFIG.tab}`;
+
             showHint('正在打开推送页面...', 'loading');
 
             // 复制 URL 到剪贴板
             navigator.clipboard.writeText(videoUrl).then(() => {
                 console.log('Copied URL to clipboard:', videoUrl);
                 // 打开推送页面
-                const pushWindow = window.open('http://192.168.0.88:9978/?tab=2', '_blank');
+                const pushWindow = window.open(pushUrl, '_blank');
                 if (!pushWindow) {
                     showHint('无法打开推送页面，请允许弹出窗口', 'error');
                     return;
@@ -359,7 +363,7 @@
                     10000
                 );
                 // 仍尝试打开页面
-                const pushWindow = window.open('http://192.168.0.88:9978/?tab=2', '_blank');
+                const pushWindow = window.open(pushUrl, '_blank');
                 if (!pushWindow) {
                     showHint('无法打开推送页面，请允许弹出窗口', 'error');
                 }

@@ -342,6 +342,10 @@
         }
         // 在页面加载完成后检查用户是否首次访问
         document.addEventListener('DOMContentLoaded', function() {
+            // 初始化推送服务器地址
+            const savedUrl = localStorage.getItem(PUSH_SERVER_CONFIG.storageKey) || PUSH_SERVER_CONFIG.defaultUrl;
+            document.getElementById('pushServerUrl').value = savedUrl;
+
             // 检查用户是否已经看过声明
             const hasSeenDisclaimer = localStorage.getItem('hasSeenDisclaimer');
             

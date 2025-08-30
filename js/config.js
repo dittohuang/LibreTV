@@ -37,9 +37,9 @@ const API_SITES = {
         api: 'https://wolongzyw.com',
         name: '卧龙资源',
     },
-    cjhw: {
-        api: 'https://cjhwba.com',
-        name: '华为吧',
+    mtzy: {
+        api: 'https://mtzy.me/',
+        name: '茅台资源',
     },
     jisu: {
         api: 'https://jszyapi.com',

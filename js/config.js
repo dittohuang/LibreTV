@@ -17,11 +17,6 @@ const SITE_CONFIG = {
 // API站点配置
 const API_SITES = {
     heimuer: {
-        api: 'https://json02.heimuer.xyz',
-        name: '黑木耳',
-        detail: 'https://heimuer.tv'
-    },
-    hnzy: {
         api: 'https://cj.rycjapi.com',
         name: '如意资源',
     },

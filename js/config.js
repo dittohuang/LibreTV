@@ -38,7 +38,7 @@ const API_SITES = {
         name: '卧龙资源',
     },
     mtzy: {
-        api: 'https://mtzy.me/',
+        api: 'https://mtzy.me',
         name: '茅台资源',
     },
     jisu: {
@@ -57,6 +57,22 @@ const API_SITES = {
     mdzy: {
         api: 'https://www.mdzyapi.com',
         name: '魔都资源',
+    },
+    bdzy: {
+        api: 'https://bdzy1.com',
+        name: '百度资源',
+    },
+    wjzy: {
+        api: 'https://www.wujinzy.com',
+        name: '无尽资源',
+    },
+    hnzy: {
+        api: 'https://www.hongniuziyuan.com',
+        name: '红牛资源',
+    },
+    kczy: {
+        api: 'https://www.kuaichezy.com/',
+        name: '快车资源',
     }
 };
 

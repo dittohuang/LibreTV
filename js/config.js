@@ -37,9 +37,8 @@ const API_SITES = {
         name: '茅台资源',
     },
     jisu: {
-        api: 'https://jszyapi.com',
+        api: 'https://jsjiexi.com',
         name: '极速资源',
-        detail: 'https://jszyapi.com'
     },
     yhzy: {
         api: 'https://yhzy.cc/',

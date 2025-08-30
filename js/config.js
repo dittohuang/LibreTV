@@ -37,7 +37,7 @@ const API_SITES = {
         name: '茅台资源',
     },
     guangsu: {
-        api: 'https://www.gszyv.com',
+        api: 'https://guangsuzy.com',
         name: '光速资源',
     },
     yhzy: {

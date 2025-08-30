@@ -36,9 +36,9 @@ const API_SITES = {
         api: 'https://mtzy.me',
         name: '茅台资源',
     },
-    guangsu: {
-        api: 'https://guangsuzy.com',
-        name: '光速资源',
+    lzzy: {
+        api: 'https://lzizy.net/',
+        name: '量子资源',
     },
     yhzy: {
         api: 'https://yhzy.cc/',

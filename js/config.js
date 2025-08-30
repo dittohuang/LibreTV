@@ -56,18 +56,6 @@ const API_SITES = {
     bdzy: {
         api: 'https://bdzy1.com',
         name: '百度资源',
-    },
-    wjzy: {
-        api: 'https://www.wujinzy.com',
-        name: '无尽资源',
-    },
-    hnzy: {
-        api: 'https://www.hongniuziyuan.com',
-        name: '红牛资源',
-    },
-    kczy: {
-        api: 'https://www.kuaichezy.com/',
-        name: '快车资源',
     }
 };
 

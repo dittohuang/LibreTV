@@ -46,9 +46,9 @@ const API_SITES = {
         name: '极速资源',
         detail: 'https://jszyapi.com'
     },
-    dbzy: {
-        api: 'https://dbzy.com',
-        name: '豆瓣资源',
+    yhzy: {
+        api: 'https://yhzy.cc/',
+        name: '樱花资源',
     },
     mozhua: {
         api: 'https://mozhuazy.com',

@@ -17,11 +17,6 @@ const SITE_CONFIG = {
 // API站点配置
 const API_SITES = {
     heimuer: {
-        api: 'https://json02.heimuer.xyz',
-        name: '黑木耳',
-        detail: 'https://heimuer.tv'
-    },
-    hnzy: {
         api: 'https://cj.rycjapi.com',
         name: '如意资源',
     },
@@ -37,18 +32,17 @@ const API_SITES = {
         api: 'https://wolongzyw.com',
         name: '卧龙资源',
     },
-    cjhw: {
-        api: 'https://cjhwba.com',
-        name: '华为吧',
+    mtzy: {
+        api: 'https://mtzy.me',
+        name: '茅台资源',
     },
-    jisu: {
-        api: 'https://jszyapi.com',
-        name: '极速资源',
-        detail: 'https://jszyapi.com'
+    lzzy: {
+        api: 'https://lzizy.net/',
+        name: '量子资源',
     },
-    dbzy: {
-        api: 'https://dbzy.com',
-        name: '豆瓣资源',
+    yhzy: {
+        api: 'https://yhzy.cc/',
+        name: '樱花资源',
     },
     mozhua: {
         api: 'https://mozhuazy.com',
@@ -57,6 +51,10 @@ const API_SITES = {
     mdzy: {
         api: 'https://www.mdzyapi.com',
         name: '魔都资源',
+    },
+    bdzy: {
+        api: 'https://bdzy1.com',
+        name: '百度资源',
     }
 };
 

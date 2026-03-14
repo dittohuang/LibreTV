@@ -24,9 +24,9 @@ const API_SITES = {
         api: 'https://tyyszy.com',
         name: '天涯资源',
     },
-    zy360: {
-        api: 'https://360zy.com',
-        name: '360资源',
+    jisuzy: {
+        api: 'https://www.jisuzy.com/',
+        name: '极速资源',
     },
     wolong: {
         api: 'https://wolongzyw.com',

@@ -21,12 +21,12 @@ const API_SITES = {
         name: '如意资源',
     },
     tyyszy: {
-        api: 'https://tyyszy.com',
-        name: '天涯资源',
+        api: 'https://jszyapi.com',
+        name: '极速资源',
     },
     zy360: {
-        api: 'https://360zy.com',
-        name: '360资源',
+        api: 'https://api.ffzyapi.com',
+        name: '非凡资源',
     },
     wolong: {
         api: 'https://wolongzyw.com',
